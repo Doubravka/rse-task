@@ -1,0 +1,13 @@
+name: fcs_pipeline
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.11
+  - snakemake
+  - r-base=4.3
+  - r-flowcore
+  - r-ggplot2
+  - r-uwot
+  - r-optparse
