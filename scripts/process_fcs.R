@@ -10,13 +10,20 @@ option_list <- list(
   make_option(c("-o", "--output"), type="character", help="Output FCS file"),
   make_option(c("-p", "--plot"), type="character", help="Output plot file"),
   make_option(c("-c", "--channels"), type="character", default=NULL, help="Channels file (optional)"),
-  make_option(c("-x", "--exclude"), type="character", default=NULL, help="Channel exclusion pattern (regex), for description")
+  make_option(c("-x", "--exclude"), type="character", default=NULL, help="Channel exclusion pattern (regex), for description"),
+  make_option(c("-s", "--seed"), type="integer", default=NULL, help="Random seed for reproducible results (optional)")
 )
 
 opt <- parse_args(OptionParser(option_list=option_list))
 
 if (is.null(opt$input) || is.null(opt$output) || is.null(opt$plot)) {
   stop("Input, output and plot must be provided")
+}
+
+# Set seed if provided
+if (!is.null(opt$seed)) {
+  set.seed(opt$seed)
+  cat("Using seed:", opt$seed, "\n")
 }
 
 ff <- read.FCS(opt$input, transformation = FALSE)
@@ -51,7 +58,7 @@ if (!is.null(opt$channels) && file.exists(opt$channels)) {
   if (is.null(opt$exclude) || opt$exclude == "") {
     channels <- which(!is.na(desc))
   } else {
-    channels <- which(!is.na(desc) & !grepl(opt$exclude, desc, ignore.case = TRUE))
+  channels <- which(!is.na(desc) & !grepl(opt$exclude, desc, ignore.case = TRUE))
   }
   expr <- exprs(ff)[, channels, drop=FALSE]
 }

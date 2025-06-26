@@ -8,11 +8,15 @@ plot_dir: "plots"
 # Optional: Path to channels file
 # If specified, only channels with use=1 in the channels file will be used
 # If not specified, the pipeline will use either all channels with non empty description
-# or channels mattching the exclude_pattern will be excluded
+# or channels matching the exclude_pattern will be excluded
 channels_file_path: "channels.txt"
 
 # Channel exclusion pattern (regex)
-# Used when channels file is not provided to exclude channels from analysis based on decription.
+# Used when channels file is not provided to exclude channels from analysis based on description.
 # Default: "^FSC|^SSC" (excludes scatter channels starting with FSC or SSC)
 # It is ignored if channels_file_path is provided
-# exclude_pattern: "^FSC|^SSC" 
+# exclude_pattern: "^FSC|^SSC"
+
+# Random seed for reproducible results (optional)
+# If not specified, results will vary between runs
+seed: 42
