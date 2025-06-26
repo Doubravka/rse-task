@@ -56,6 +56,10 @@ if (!is.null(opt$channels) && file.exists(opt$channels)) {
   expr <- exprs(ff)[, channels, drop=FALSE]
 }
 
+if (ncol(expr) <= 1) {
+  stop("Expression matrix must have more than one channel/column for umap analysis.")
+}
+
 expr_trans <- asinh(expr / 5)
 
 umap_res <- umap(expr_trans, n_components = 2)
