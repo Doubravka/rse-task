@@ -20,7 +20,8 @@ def test_pipeline_runs():
         'snakemake',
         '-s', os.path.join(os.path.dirname(__file__), '..', 'Snakefile'),
         '--directory', temp,
-        '--cores', '1'
+        '--cores', '1',
+        '--config', 'exclude_pattern=null'
     ]
     subprocess.check_call(cmd)
 
