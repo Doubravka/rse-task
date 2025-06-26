@@ -105,3 +105,8 @@ pytest
 
 The tests use an example FCS file distributed with `flowCore` and verify that
 the pipeline completes and creates the expected outputs.
+
+## Development
+
+`.devcontainer/devcontainer.json` contain working setup for development environment in vscode. 
+What is not working is running interactive debugger with arguments (they are not properly passed as trailing arguments and code change is necessary to make it work) as of now.
