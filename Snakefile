@@ -3,6 +3,7 @@ RAW_DIR = config.get('raw_dir', 'data/raw')
 PROCESSED_DIR = config.get('processed_dir', 'data/processed')
 PLOT_DIR = config.get('plot_dir', 'plots')
 CHANNELS_FILE_PATH = config.get('channels_file_path', None)
+EXCLUDE_PATTERN = config.get('exclude_pattern', "^FSC|^SSC")
 
 samples = [os.path.splitext(os.path.basename(f))[0] for f in glob.glob(os.path.join(RAW_DIR, '*.fcs'))]
 
@@ -19,4 +20,5 @@ rule process_fcs:
         plot=os.path.join(PLOT_DIR, '{sample}.png')
     shell:
         'Rscript {workflow.basedir}/scripts/process_fcs.R -i "{input}" -o "{output.fcs}" -p "{output.plot}"'
-        + (' -c "{CHANNELS_FILE_PATH}"' if CHANNELS_FILE_PATH else '') 
+        + (' -c "{CHANNELS_FILE_PATH}"' if CHANNELS_FILE_PATH else '')
+        + (' -x "{EXCLUDE_PATTERN}"' if EXCLUDE_PATTERN else '')

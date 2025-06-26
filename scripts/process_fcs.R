@@ -9,7 +9,8 @@ option_list <- list(
   make_option(c("-i", "--input"), type="character", help="Input FCS file"),
   make_option(c("-o", "--output"), type="character", help="Output FCS file"),
   make_option(c("-p", "--plot"), type="character", help="Output plot file"),
-  make_option(c("-c", "--channels"), type="character", default=NULL, help="Channels file (optional)")
+  make_option(c("-c", "--channels"), type="character", default=NULL, help="Channels file (optional)"),
+  make_option(c("-x", "--exclude"), type="character", default=NULL, help="Channel exclusion pattern (regex), for description")
 )
 
 opt <- parse_args(OptionParser(option_list=option_list))
@@ -44,9 +45,14 @@ if (!is.null(opt$channels) && file.exists(opt$channels)) {
   # Extract expression data for selected channels
   expr <- exprs(ff)[, matching_channels, drop=FALSE]
 } else {
-  # Use all channels excluding scatter channels (FSC, SSC)
   desc <- pData(params)$desc
-  channels <- which(!is.na(desc) & !grepl("^FSC|^SSC", desc, ignore.case = TRUE))
+
+  # Use all channels with non empty description or exclude by pattern if provided
+  if (is.null(opt$exclude) || opt$exclude == "") {
+    channels <- which(!is.na(desc))
+  } else {
+    channels <- which(!is.na(desc) & !grepl(opt$exclude, desc, ignore.case = TRUE))
+  }
   expr <- exprs(ff)[, channels, drop=FALSE]
 }
 
