@@ -3,7 +3,7 @@
 This repository contains a Snakemake workflow for analyzing FCS files. For each
 input file the pipeline performs the following steps:
 
-1. Selects channels with a non-empty description excluding scatter channels (or uses channels specified in config).
+1. Selects channels based on user input (defaul is all channes with non empty description except scatter channels).
 2. Applies an `asinh` transformation with cofactor 5.
 3. Computes a 2D UMAP embedding.
 4. Performs k-means clustering (5 clusters).
@@ -35,30 +35,37 @@ conda activate fcs_pipeline
 
 ## Configuration
 
-The pipeline can be configured using a `config.yaml` file. 
+The pipeline can be configured using a `config.yaml` file.
 
-# Data directories
-Specify directory with your input data and directories for outputs.
+### Optional: Data directories
+Specify directory with your input data and directories for outputs in `raw_dir`, 
+`processed_dir` and `plot_dir` (strings). If not specified following defauls will be used:
 
-# Optional: Path to channels file
+```
+raw_dir: "data/raw"
+processed_dir: "data/processed"
+plot_dir: "plots"
+```
 
-If specified, only channels with "use"=1 in the channels file will be used
-If not specified, the pipeline uses all channels except scatter channels
+### Optional: Path to channels file
+
+If specified in `channels_file_path` (string) parameter, only channels with "use"=1 in the channels file will be used
+If not specified, the pipeline uses all channels with non empty description unless `exclude_pattern` is specified.
 
 Note: all paths should be relative to the root directory.
 
-# Optional exclude_pattern
+### Optional: Exclude pattern
 
-If no channels file is specified you can exclude channels based on regex pattern.
-If no pattern is provided default "^FSC|^SSC" is used.
+If no channels file is specified you can exclude channels based on regex pattern in `exclude_pattern` (string) parameter.
+If no pattern is provided default `"^FSC|^SSC"` is used.
 
-# Optional seed
+### Optional: Seed
 
-You can specify seed to get repeatable results from umap analysis.
+You can specify `seed` (number) to get repeatable results from umap analysis.
 
 ## Running the pipeline
 
-Place your FCS files into `data/raw` and run:
+Place your FCS files into `data/raw` (or the directory specified in `raw_dir`) and run:
 
 ```bash
 # Without config file (uses defaults)
