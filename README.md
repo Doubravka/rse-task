@@ -54,7 +54,7 @@ docker build -t fcs_pipeline .
 Run the pipeline using the image:
 
 ```bash
-docker run --rm -v $(pwd):/data -w /pipeline fcs_pipeline snakemake --cores 4
+docker run --rm -v $(pwd):/pipeline -w /pipeline fcs_pipeline --cores 4
 ```
 
 ## Tests
