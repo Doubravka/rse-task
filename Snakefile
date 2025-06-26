@@ -1,4 +1,6 @@
-import os, glob
+import glob
+import os
+
 RAW_DIR = config.get('raw_dir', 'data/raw')
 PROCESSED_DIR = config.get('processed_dir', 'data/processed')
 PLOT_DIR = config.get('plot_dir', 'plots')
@@ -19,8 +21,12 @@ rule process_fcs:
     output:
         fcs=os.path.join(PROCESSED_DIR, '{sample}_umap_clust.fcs'),
         plot=os.path.join(PLOT_DIR, '{sample}.png')
+    params:
+        channels_file=CHANNELS_FILE_PATH,
+        exclude_pattern=EXCLUDE_PATTERN,
+        seed=SEED
     shell:
         'Rscript {workflow.basedir}/scripts/process_fcs.R -i "{input}" -o "{output.fcs}" -p "{output.plot}"'
-        + (' -c "{CHANNELS_FILE_PATH}"' if CHANNELS_FILE_PATH else '')
-        + (' -x "{EXCLUDE_PATTERN}"' if EXCLUDE_PATTERN else '')
-        + (' -s "{SEED}"' if SEED else '')
+        + (' -c "{params.channels_file}"' if params.channels_file else '')
+        + (' -x "{params.exclude_pattern}"' if params.exclude_pattern else '')
+        + (' -s "{params.seed}"' if params.seed else '')
