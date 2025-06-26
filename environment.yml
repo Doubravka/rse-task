@@ -7,7 +7,7 @@ dependencies:
   - python=3.11
   - snakemake
   - r-base=4.3
-  - r-flowcore
+  - bioconductor-flowcore
   - r-ggplot2
   - r-uwot
   - r-optparse
