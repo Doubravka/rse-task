@@ -46,7 +46,15 @@ If specified, only channels with "use"=1 in the channels file will be used
 If not specified, the pipeline uses all channels except scatter channels
 
 Note: all paths should be relative to the root directory.
-```
+
+# Optional exclude_pattern
+
+If no channels file is specified you can exclude channels based on regex pattern.
+If no pattern is provided default "^FSC|^SSC" is used.
+
+# Optional seed
+
+You can specify seed to get repeatable results from umap analysis.
 
 ## Running the pipeline
 
