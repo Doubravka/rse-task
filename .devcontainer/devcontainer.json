@@ -1,0 +1,23 @@
+{
+  "name": "R Dev Container",
+  "build": {
+    "dockerfile": "../Dockerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "r.rpath.linux": "/opt/conda/envs/fcs_pipeline/bin/R",
+        "r.terminalPath": "/opt/conda/envs/fcs_pipeline/bin/R",
+        "r.bracketedPaste": true,
+        "r.sessionWatcher": true
+      },
+      "extensions": [
+        "snakemake.snakemake-lang",
+        "reditorsupport.r",
+        "rdebugger.r-debugger"
+      ]
+    }
+  },
+  "postCreateCommand": "bash -c 'source /opt/conda/etc/profile.d/conda.sh && conda activate fcs_pipeline && mkdir -p debug/data/raw debug/data/processed debug/plots && conda install -y conda-forge::r-languageserver && Rscript -e \"install.packages(\\\"vscDebugger\\\", repos = \\\"https://manuelhentschel.r-universe.dev\\\")\"'",
+  "remoteUser": "root"
+}
