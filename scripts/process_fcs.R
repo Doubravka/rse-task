@@ -8,7 +8,8 @@ library(uwot)
 option_list <- list(
   make_option(c("-i", "--input"), type="character", help="Input FCS file"),
   make_option(c("-o", "--output"), type="character", help="Output FCS file"),
-  make_option(c("-p", "--plot"), type="character", help="Output plot file")
+  make_option(c("-p", "--plot"), type="character", help="Output plot file"),
+  make_option(c("-c", "--channels"), type="character", default=NULL, help="Channels file (optional)")
 )
 
 opt <- parse_args(OptionParser(option_list=option_list))
@@ -19,9 +20,36 @@ if (is.null(opt$input) || is.null(opt$output) || is.null(opt$plot)) {
 
 ff <- read.FCS(opt$input, transformation = FALSE)
 params <- parameters(ff)
-desc <- pData(params)$desc
-channels <- which(!is.na(desc) & !grepl("^FSC|^SSC", desc, ignore.case = TRUE))
-expr <- exprs(ff)[, channels, drop=FALSE]
+
+# Channel selection logic
+if (!is.null(opt$channels) && file.exists(opt$channels)) {
+  # Extract names of channels from FCS input
+  fcs_names <- pData(params)$name
+  
+  # Read channels file
+  channels_df <- read.table(opt$channels, header=TRUE, sep="\t", stringsAsFactors=FALSE)
+  # Remove quotes from column names if present
+  colnames(channels_df) <- gsub('"', '', colnames(channels_df))
+  
+  # Get channels to use (where column "use" == 1)
+  channels_to_use <- channels_df$name[channels_df$use == 1]
+  
+  # Find channels which are in the FCS file and the channels file
+  matching_channels <- which(fcs_names %in% channels_to_use)
+  
+  if (length(matching_channels) == 0) {
+    stop("No matching channels found between FCS file and channels file")
+  }
+  
+  # Extract expression data for selected channels
+  expr <- exprs(ff)[, matching_channels, drop=FALSE]
+} else {
+  # Use all channels excluding scatter channels (FSC, SSC)
+  desc <- pData(params)$desc
+  channels <- which(!is.na(desc) & !grepl("^FSC|^SSC", desc, ignore.case = TRUE))
+  expr <- exprs(ff)[, channels, drop=FALSE]
+}
+
 expr_trans <- asinh(expr / 5)
 
 umap_res <- umap(expr_trans, n_components = 2)

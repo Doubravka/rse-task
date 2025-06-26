@@ -1,0 +1,9 @@
+# Configuration file for FCS pipeline
+
+# Data directories
+raw_dir: "data/raw"
+processed_dir: "data/processed"
+plot_dir: "plots"
+
+# Optional: Path to channels file
+channels_file_path: "channels.txt" 
