@@ -6,7 +6,7 @@ RUN conda env create -f environment.yml
 
 # Activate environment by default
 SHELL ["/bin/bash", "-c"]
-ENV PATH /opt/conda/envs/fcs_pipeline/bin:$PATH
+ENV PATH=/opt/conda/envs/fcs_pipeline/bin:$PATH
 
 COPY . /pipeline
 
