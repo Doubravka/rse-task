@@ -36,7 +36,7 @@ option_list <- list(
 opt <- parse_args(OptionParser(option_list = option_list))
 
 if (is.null(opt$input) || is.null(opt$output) || is.null(opt$plot)) {
-  stop("Input, output and plot must be provided")
+  stop("Input, output and plot parameters must be provided")
 }
 
 # Set seed if provided
@@ -45,13 +45,13 @@ if (!is.null(opt$seed)) {
   cat("Using seed:", opt$seed, "\n")
 }
 
-ff <- read.FCS(opt$input, transformation = FALSE)
-params <- parameters(ff)
+flow_frame <- read.FCS(opt$input, transformation = FALSE)
+fcs_params <- parameters(flow_frame)
 
 # Channel selection logic
 if (!is.null(opt$channels) && file.exists(opt$channels)) {
   # Extract names of channels from FCS input
-  fcs_names <- pData(params)$name
+  fcs_names <- pData(fcs_params)$name
   
   # Read channels file
   channels_df <- read.table(
@@ -61,7 +61,7 @@ if (!is.null(opt$channels) && file.exists(opt$channels)) {
     stringsAsFactors = FALSE
   )
   # Remove quotes from column names if present
-  colnames(channels_df) <- gsub('"', '', colnames(channels_df))
+  colnames(channels_df) <- gsub('"', "", colnames(channels_df))
 
   # Get channels to use (where column "use" == 1)
   channels_to_use <- channels_df$name[channels_df$use == 1]
@@ -74,49 +74,52 @@ if (!is.null(opt$channels) && file.exists(opt$channels)) {
   }
   
   # Extract expression data for selected channels
-  expr <- exprs(ff)[, matching_channels, drop=FALSE]
+  expression_data <- exprs(flow_frame)[, matching_channels, drop = FALSE]
 } else {
-  desc <- pData(params)$desc
+  fcs_desc <- pData(fcs_params)$desc
 
   # Select channels based on description
   if (is.null(opt$exclude) || opt$exclude == "") {
     # Use all channels with non empty description
-    channels <- which(!is.na(desc))
+    channels <- which(!is.na(fcs_desc))
   } else {
-    # Use non empty and exclude by pattern if provided
+    # Use non empty channels and exclude by pattern if provided
     channels <- which(
-      !is.na(desc) & !grepl(opt$exclude, desc, ignore.case = TRUE)
+      !is.na(fcs_desc) & !grepl(opt$exclude, fcs_desc, ignore.case = TRUE)
     )
   }
-  expr <- exprs(ff)[, channels, drop = FALSE]
+
+  expression_data <- exprs(flow_frame)[, channels, drop = FALSE]
 }
 
-if (ncol(expr) <= 1) {
-  stop("Expression must have more than one channel/column for umap analysis.")
+if (ncol(expression_data) <= 1) {
+  stop("Expression data must have more than one column for umap analysis.")
 }
 
-expr_trans <- asinh(expr / 5)
+expression_data_trans <- asinh(expression_data / 5)
 
-umap_res <- umap(expr_trans, n_components = 2)
-km <- kmeans(umap_res, centers = 5)
+umap_res <- umap(expression_data_trans, n_components = 2)
+k_means <- kmeans(umap_res, centers = 5)
 
-new_expr <- cbind(
-  exprs(ff),
+new_expression_data <- cbind(
+  exprs(flow_frame),
   UMAP1 = umap_res[, 1],
-  UMAP2 = umap_res[, 2], Cluster = km$cluster
+  UMAP2 = umap_res[, 2], Cluster = k_means$cluster
 )
-new_ff <- flowFrame(new_expr)
 
-write.FCS(new_ff, filename = opt$output)
+new_flow_frame <- flowFrame(new_expression_data)
+
+write.FCS(new_flow_frame, filename = opt$output)
 
 df <- data.frame(
   UMAP1 = umap_res[, 1],
   UMAP2 = umap_res[, 2],
-  Cluster = factor(km$cluster)
+  Cluster = factor(k_means$cluster)
 )
-plt <- ggplot(
+
+umap_plot <- ggplot(
   df,
   aes(x = UMAP1, y = UMAP2, color = Cluster)
 ) + geom_point(size = 0.5) + theme_minimal()
 
-ggsave(opt$plot, plot = plt)
+ggsave(opt$plot, plot = umap_plot)
