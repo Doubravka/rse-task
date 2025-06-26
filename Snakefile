@@ -17,4 +17,4 @@ rule process_fcs:
         fcs=os.path.join(PROCESSED_DIR, '{sample}_umap_clust.fcs'),
         plot=os.path.join(PLOT_DIR, '{sample}.png')
     shell:
-        'Rscript {workflow.basedir}/scripts/process_fcs.R -i {input} -o {output.fcs} -p {output.plot}'
+        'Rscript {workflow.basedir}/scripts/process_fcs.R -i "{input}" -o "{output.fcs}" -p "{output.plot}"'
